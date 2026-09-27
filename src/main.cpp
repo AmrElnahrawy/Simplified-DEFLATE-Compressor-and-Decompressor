@@ -3,8 +3,10 @@
 #include <cstdint>
 #include <string>
 #include <vector>
+#include <chrono>
 
 #include "container.hpp"
+
 
  
 namespace {
@@ -49,9 +51,21 @@ int main(int argc, char* argv[]) {
 
     try {
         if (mode == "-c") {
-
+            std::vector<uint8_t> input = readFile(filename);
+            std::vector<uint8_t> output = sdfl::compress(input);
+            writeFile(filename + ".sdfl", output);
         } else if (mode == "-d") {
-            
+            const std::string suffix = ".sdfl";
+            if (filename.size() <= suffix.size() ||
+                filename.compare(filename.size() - suffix.size(), suffix.size(), suffix) != 0) {
+                std::cerr << "expected a .sdfl file for decompression\n";
+                return 1;
+            }
+            std::string outputPath = filename.substr(0, filename.size() - suffix.size());
+ 
+            std::vector<uint8_t> input = readFile(filename);
+            std::vector<uint8_t> output = sdfl::decompress(input);
+            writeFile(outputPath, output);
         } else {
             printUsage(argv[0]);
             return 1;
