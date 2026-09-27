@@ -26,26 +26,22 @@ struct RingBuffer {
     }
 };
 
-class lz77
+class LZ77
 {
 private:
-    const std::vector<unsigned char> &data;
-    const int WINDOW_SIZE = 32768;
-    const int MIN_MATCH = 3;
-    const int MAX_MATCH = 258;
-    const int MAX_CANDIDATES = 64;
+    static constexpr int WINDOW_SIZE = 32768;
+    static constexpr int MIN_MATCH = 3;
+    static constexpr int MAX_MATCH = 258;
+    static constexpr int MAX_CANDIDATES = 64;
 public:
-    lz77(const std::vector<unsigned char>& inputdata) : data(inputdata) {}
-    ~lz77() = default;
-
-    std::vector<Token> encode() {
-        std::vector<Token> tokens_list;
+    static std::vector<Token> encode(const std::vector<unsigned char> &data) {
+        std::vector<Token> tokens;
         std::unordered_map<uint32_t, RingBuffer> table;
         
-        int i = 0;
+        size_t i = 0;
         while (i < data.size()) {
             if (i + MIN_MATCH > data.size()) {
-                tokens_list.push_back(data[i]);
+                tokens.push_back(data[i]);
                 i++;
                 continue;
             }
@@ -81,7 +77,7 @@ public:
             }
 
             if (best_candidate_len >= MIN_MATCH) {
-                tokens_list.push_back(Match {best_candidate_len, best_candidate_dist});
+                tokens.push_back(Match {best_candidate_len, best_candidate_dist});
                 int end = i + best_candidate_len;
                 while (i < end) {
                     if (i + MIN_MATCH <= data.size()) {
@@ -91,23 +87,23 @@ public:
                     i++;
                 }
             } else {
-                tokens_list.push_back(data[i]);
+                tokens.push_back(data[i]);
                 table[key].push(i);
                 i++;
             }
         }
-        return tokens_list;
+        return tokens;
     }
 
-    std::vector<unsigned char> decode(const std::vector<Token> &tokens_list) {
+    static std::vector<unsigned char> decode(const std::vector<Token> &tokens) {
         std::vector<unsigned char> decoded_data;
-        for (int i = 0; i < tokens_list.size(); i++) {
-            if (std::holds_alternative<unsigned char>(tokens_list[i])) {
-                decoded_data.push_back(std::get<unsigned char>(tokens_list[i]));
+        for (int i = 0; i < tokens.size(); i++) {
+            if (std::holds_alternative<unsigned char>(tokens[i])) {
+                decoded_data.push_back(std::get<unsigned char>(tokens[i]));
             } else {
                 int counter = 0;
-                int match_length = std::get<Match>(tokens_list[i]).length;
-                int match_distance = std::get<Match>(tokens_list[i]).distance;
+                int match_length = std::get<Match>(tokens[i]).length;
+                int match_distance = std::get<Match>(tokens[i]).distance;
                 while (counter++ < match_length) {
                     decoded_data.push_back(decoded_data[decoded_data.size() - match_distance]);
                 }

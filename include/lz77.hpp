@@ -28,22 +28,18 @@ struct RingBuffer {
 };
 
 
-class lz77
+class LZ77
 {
 private:
-    const std::vector<unsigned char> &data;
-    const int WINDOW_SIZE = 32768;
-    const int MIN_MATCH = 3;
-    const int MAX_MATCH = 258;
-    const int MAX_CANDIDATES = 64;
+    static constexpr int WINDOW_SIZE = 32768;
+    static constexpr int MIN_MATCH = 3;
+    static constexpr int MAX_MATCH = 258;
+    static constexpr int MAX_CANDIDATES = 64;
     
 public:
-    lz77(const std::vector<unsigned char>& inputdata) : data(inputdata) {}
-    ~lz77() = default;
+    static std::vector<Token> encode(const std::vector<unsigned char> &data);
 
-    std::vector<Token> encode();
-
-    std::vector<unsigned char> decode(const std::vector<Token> &tokens_list);
+    static std::vector<unsigned char> decode(const std::vector<Token> &tokens);
 };
 
 #endif
