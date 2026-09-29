@@ -14,7 +14,7 @@ using Token = std::variant<unsigned char, Match>;
 struct LiteralEvent { uint16_t symbol; };
 struct MatchEvent   { uint16_t lenSym, lenExtraBits, lenExtraVal, 
                                 distSym, distExtraBits, distExtraVal; };
-struct EndEvent      { uint16_t symbol = 256; };
+struct EndEvent     { uint16_t symbol = 256; };
 
 using Event = std::variant<LiteralEvent, MatchEvent, EndEvent>;
 
