@@ -3,14 +3,8 @@
 #include <unordered_map>
 #include <variant>
 
+#include "types.hpp"
 #include "lz77.hpp"
-
-struct Match {
-    int length;     // copy - past  [abc <--l--> abc]
-    int distance;   // go back      [x <--d-- x]
-};
-
-using Token = std::variant<unsigned char, Match>;
 
 struct RingBuffer {
     std::vector<uint32_t> indices;

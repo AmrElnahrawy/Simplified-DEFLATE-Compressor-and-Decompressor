@@ -5,13 +5,7 @@
 #include <unordered_map>
 #include <variant>
 
-struct Match
-{
-    int length;
-    int distance;
-};
-
-using Token = std::variant<unsigned char, Match>;
+#include "types.hpp"
 
 struct RingBuffer {
     std::vector<uint32_t> indices;
