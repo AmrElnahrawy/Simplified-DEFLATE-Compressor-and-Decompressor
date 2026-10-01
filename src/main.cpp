@@ -31,12 +31,6 @@ namespace {
                   << "  " << argv0 << " -c <file>         compress <file> into <file>.sdfl\n"
                   << "  " << argv0 << " -d <file>.sdfl    decompress into <file>\n";
     }
-    
-    void printUsage(const char* argv0) {
-        std::cerr << "Usage:\n"
-              << "  " << argv0 << " -c <file>         compress <file> into <file>.sdfl\n"
-              << "  " << argv0 << " -d <file>.sdfl    decompress into <file>\n";
-    }
 }
 
 

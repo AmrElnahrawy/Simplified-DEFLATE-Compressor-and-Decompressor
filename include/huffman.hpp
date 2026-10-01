@@ -3,15 +3,8 @@
 #include <cstdint>
 #include <variant>
 #include <vector>
-
+#include "types.hpp"
 #include "huffman.hpp"
-
-struct LiteralEvent { uint16_t symbol; };
-struct MatchEvent   { uint16_t lenSym, lenExtraBits, lenExtraVal, 
-                                distSym, distExtraBits, distExtraVal; };
-struct EndEvent     { uint16_t symbol = 256; };
-
-using Event = std::variant<LiteralEvent, MatchEvent, EndEvent>;
 
 struct huffmanNode
 {
@@ -63,11 +56,11 @@ private:
 public:
     void encode(const std::vector<Event>& events);
 
-    const std::vector<uint32_t>& get_ll_codes() const { return ll_codes; }
-    const std::vector<uint32_t>& get_d_codes()  const { return d_codes; }
+    const std::vector<uint32_t>& get_ll_codes() const;
+    const std::vector<uint32_t>& get_d_codes()  const;
 
-    const std::vector<uint32_t>& get_ll_code_lengths() const { return ll_code_lengths; }
-    const std::vector<uint32_t>& get_d_code_lengths()  const { return d_code_lengths; }
+    const std::vector<uint32_t>& get_ll_code_lengths() const;
+    const std::vector<uint32_t>& get_d_code_lengths()  const;
 
 };
 #endif

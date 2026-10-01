@@ -7,53 +7,8 @@
 
 #include "huffman.hpp"
 
-struct LiteralEvent { uint16_t symbol; };
-struct MatchEvent   { uint16_t lenSym, lenExtraBits, lenExtraVal, 
-                                distSym, distExtraBits, distExtraVal; };
-struct EndEvent     { uint16_t symbol = 256; };
 
-using Event = std::variant<LiteralEvent, MatchEvent, EndEvent>;
-
-struct huffmanNode
-{
-    uint16_t symbol;
-    uint32_t freq;
-    uint16_t min_symbol;
-    huffmanNode* left = nullptr;
-    huffmanNode* right = nullptr;
-
-    huffmanNode(uint16_t symbol, uint32_t freq, uint16_t min_symbol) : symbol(symbol), freq(freq), min_symbol(min_symbol), left(nullptr), right(nullptr) {}
-
-    ~huffmanNode() {
-        delete left;
-        delete right;
-    }
-
-    bool operator<(const huffmanNode& other) const {
-        if (freq != other.freq) {
-            return freq < other.freq; 
-        }
-        return min_symbol < other.min_symbol; 
-    }
-};
-
-
-class huffman
-{
-private:
-    static constexpr int LLS = 286;
-    static constexpr int DS = 30;
-
-    std::vector<uint32_t> literal_length_freqs = std::vector<uint32_t>(LLS, 0);
-    std::vector<uint32_t> distance_freqs       = std::vector<uint32_t>(DS, 0);
-
-    std::vector<uint32_t> ll_code_lengths = std::vector<uint32_t>(LLS, 0);
-    std::vector<uint32_t> d_code_lengths  = std::vector<uint32_t>(DS, 0);
-
-    std::vector<uint32_t> ll_codes = std::vector<uint32_t>(LLS, 0);
-    std::vector<uint32_t> d_codes  = std::vector<uint32_t>(DS, 0);
-
-    void calculate_frequencies(const std::vector<Event> &events) {
+void huffman::calculate_frequencies(const std::vector<Event> &events) {
         for (const auto& ev : events) {
             switch (ev.index()) {
                 case 0: { 
@@ -76,7 +31,7 @@ private:
         }
     }
 
-    huffmanNode* huffman_tree(std::vector<uint32_t> freqs) {
+huffmanNode* huffman::huffman_tree(std::vector<uint32_t> freqs) {
         auto comp = [](const huffmanNode* a, const huffmanNode* b) { 
             return *b < *a; 
         };
@@ -113,7 +68,7 @@ private:
         return Nodes.top();
     }
 
-    void count_lengths(huffmanNode* root, uint32_t depth, std::vector<uint32_t>& x_code_length) {
+void huffman::count_lengths(huffmanNode* root, uint32_t depth, std::vector<uint32_t>& x_code_length) {
         if (root == nullptr)
             return;
         
@@ -130,11 +85,11 @@ private:
         return;
     }
 
-    std::vector<uint32_t> canonical_codes(const std::vector<uint32_t>& lengths) {
+std::vector<uint32_t> huffman::canonical_codes(const std::vector<uint32_t>& lengths) {
         std::vector<uint32_t> count(16, 0), next_code(16, 0);
         for (uint8_t l : lengths)  {
             if (l > 15) {
-                throw std::runtime_error("Error: Code length longer than 15");
+                throw std::runtime_error("Code length longer than 15");
             }
             count[l]++;
         }
@@ -153,28 +108,27 @@ private:
         return codes;
     }
     
-public:
-    void encode(const std::vector<Event>& events) {
-        calculate_frequencies(events);
+void huffman::encode(const std::vector<Event>& events) {
+    calculate_frequencies(events);
 
-        huffmanNode* ll_root = huffman_tree(literal_length_freqs);
-        huffmanNode* d_root  = huffman_tree(distance_freqs);
+    huffmanNode* ll_root = huffman_tree(literal_length_freqs);
+    huffmanNode* d_root  = huffman_tree(distance_freqs);
         
-        count_lengths(ll_root, 0,ll_code_lengths);
-        count_lengths(d_root, 0,d_code_lengths);  
+    count_lengths(ll_root, 0,ll_code_lengths);
+    count_lengths(d_root, 0,d_code_lengths);  
 
-        delete ll_root;
-        delete d_root;
+    delete ll_root;
+    delete d_root;
 
-        ll_codes = canonical_codes(ll_code_lengths);
-        d_codes  = canonical_codes(d_code_lengths);
-    }
+    ll_codes = canonical_codes(ll_code_lengths);
+    d_codes  = canonical_codes(d_code_lengths);
+}
 
-    const std::vector<uint32_t>& get_ll_codes() const { return ll_codes; }
-    const std::vector<uint32_t>& get_d_codes()  const { return d_codes; }
+const std::vector<uint32_t>& huffman::get_ll_codes() const { return ll_codes; }
+const std::vector<uint32_t>& huffman::get_d_codes()  const { return d_codes; }
 
-    const std::vector<uint32_t>& get_ll_code_lengths() const { return ll_code_lengths; }
-    const std::vector<uint32_t>& get_d_code_lengths()  const { return d_code_lengths; }
+const std::vector<uint32_t>& huffman::get_ll_code_lengths() const { return ll_code_lengths; }
+const std::vector<uint32_t>& huffman::get_d_code_lengths()  const { return d_code_lengths; }
 
-};
+
 
